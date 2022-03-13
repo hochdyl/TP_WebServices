@@ -45,16 +45,6 @@ class MovieRepository extends ServiceEntityRepository
         }
     }
 
-    public function search($search)
-    {
-        return $this->createQueryBuilder('m')
-            ->where('m.title LIKE :search')
-            ->orWhere('m.description LIKE :search')
-            ->setParameter('search', '%'. $search .'%')
-            ->getQuery()
-            ->getResult();
-    }
-
     // /**
     //  * @return Movie[] Returns an array of Movie objects
     //  */
