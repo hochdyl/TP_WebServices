@@ -17,9 +17,9 @@ class Movie
     private $id;
 
     #[ORM\Column(type: 'string', length: 128)]
-    #[Assert\NotBlank(message: 'Title cannot be empty.')]
-    #[Assert\Length(max: 128, maxMessage: 'Title cannot have more than 128 characters.')]
-    private $title;
+    #[Assert\NotBlank(message: 'Name cannot be empty.')]
+    #[Assert\Length(max: 128, maxMessage: 'Name cannot have more than 128 characters.')]
+    private $name;
 
     #[ORM\Column(type: 'string', length: 2048)]
     #[Assert\NotBlank(message: 'Description cannot be empty.')]
@@ -43,14 +43,14 @@ class Movie
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
-        return $this->title;
+        return $this->name;
     }
 
-    public function setTitle(string $title): self
+    public function setName(string $name): self
     {
-        $this->title = $title;
+        $this->name = $name;
 
         return $this;
     }
