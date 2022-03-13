@@ -88,7 +88,7 @@ abstract class ApiAbstractController extends AbstractController
             }
             return json_decode($data, true);
         } catch (Exception) {
-            throw new Exception('XML content is wrongly formatted.');
+            throw new Exception('Data is wrongly formatted in ' . $this->inputFormat . '.');
         }
     }
 }
