@@ -18,10 +18,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Route('api/')]
 class ApiMovieController extends ApiAbstractController
 {
-    #[Route('movie/', name: 'api_get_movies', methods: ['GET'])]
-    public function getMovies(MovieRepository $movieRepository): Response
+    #[Route('movie', name: 'api_get_movies', methods: ['GET'])]
+    public function getMovies(Request $request, MovieRepository $movieRepository): Response
     {
-        $movies = $movieRepository->findAll();
+        // Handle "s" (search) parameter.
+        $movies = $movieRepository->search($request->query->get('s'));
 
         return $this->response($movies, 200);
     }
@@ -52,7 +53,7 @@ class ApiMovieController extends ApiAbstractController
         return $this->response($movie, 200);
     }
 
-    #[Route('movie/', name: 'api_delete_movies', methods: ['DELETE'])]
+    #[Route('movie', name: 'api_delete_movies', methods: ['DELETE'])]
     public function deleteMovies(MovieRepository $movieRepository, EntityManagerInterface $em): Response
     {
         $movies = $movieRepository->findAll();
