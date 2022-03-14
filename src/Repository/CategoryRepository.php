@@ -2,30 +2,30 @@
 
 namespace App\Repository;
 
-use App\Entity\Movie;
+use App\Entity\Category;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Movie|null find($id, $lockMode = null, $lockVersion = null)
- * @method Movie|null findOneBy(array $criteria, array $orderBy = null)
- * @method Movie[]    findAll()
- * @method Movie[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Category|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Category|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Category[]    findAll()
+ * @method Category[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class MovieRepository extends ServiceEntityRepository
+class CategoryRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Movie::class);
+        parent::__construct($registry, Category::class);
     }
 
     /**
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function add(Movie $entity, bool $flush = true): void
+    public function add(Category $entity, bool $flush = true): void
     {
         $this->_em->persist($entity);
         if ($flush) {
@@ -37,7 +37,7 @@ class MovieRepository extends ServiceEntityRepository
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function remove(Movie $entity, bool $flush = true): void
+    public function remove(Category $entity, bool $flush = true): void
     {
         $this->_em->remove($entity);
         if ($flush) {
@@ -46,7 +46,7 @@ class MovieRepository extends ServiceEntityRepository
     }
 
     /**
-     * Search in movies.
+     * Search in categories.
      *
      * @param int $page Collection page to return.
      * @param int $size Collection size to return.
@@ -57,9 +57,6 @@ class MovieRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('m')
             ->where('m.title LIKE :search')
-            ->orWhere('m.description LIKE :search')
-            ->orWhere('m.releasedAt LIKE :search')
-            ->orWhere('m.note LIKE :search')
             ->setParameter('search', '%'. $search .'%')
             ->setFirstResult($size * ($page-1))
             ->setMaxResults($size)

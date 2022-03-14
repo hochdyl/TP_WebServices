@@ -21,11 +21,11 @@ class ApiMovieController extends ApiAbstractController
     #[Route('movie', name: 'api_get_movies', methods: ['GET'])]
     public function getMovies(Request $request, MovieRepository $movieRepository): Response
     {
-        $search = $request->query->get('search'); // Search terms, default : null
         $page   = $request->query->get('page', 1); // Page number, default : 1
         $size   = $request->query->get('size', 10); // Page size, default : 10
+        $search = $request->query->get('search'); // Search terms, default : null
 
-        $movies = $movieRepository->search($search, $page, $size);
+        $movies = $movieRepository->search($page, $size, $search);
 
         return $this->response($movies, 200);
     }
