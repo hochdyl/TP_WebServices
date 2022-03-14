@@ -45,12 +45,14 @@ class MovieRepository extends ServiceEntityRepository
         }
     }
 
-    public function search($search)
+    public function search($search, $page, $size)
     {
         return $this->createQueryBuilder('m')
             ->where('m.title LIKE :search')
             ->orWhere('m.description LIKE :search')
             ->setParameter('search', '%'. $search .'%')
+            ->setFirstResult($size * ($page-1))
+            ->setMaxResults($size)
             ->getQuery()
             ->getResult();
     }
