@@ -50,6 +50,8 @@ class MovieRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('m')
             ->where('m.title LIKE :search')
             ->orWhere('m.description LIKE :search')
+            ->orWhere('m.releasedAt LIKE :search')
+            ->orWhere('m.note LIKE :search')
             ->setParameter('search', '%'. $search .'%')
             ->setFirstResult($size * ($page-1))
             ->setMaxResults($size)
