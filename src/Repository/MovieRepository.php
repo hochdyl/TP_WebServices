@@ -51,7 +51,7 @@ class MovieRepository extends ServiceEntityRepository
      * @param int $page Collection page to return.
      * @param int $size Collection size to return.
      * @param string|null $search Search with a term.
-     * @return float|int|mixed|string
+     * @return mixed
      */
     public function search(int $page, int $size, string $search = null): mixed
     {
@@ -60,6 +60,31 @@ class MovieRepository extends ServiceEntityRepository
             ->orWhere('m.description LIKE :search')
             ->orWhere('m.releasedAt LIKE :search')
             ->orWhere('m.note LIKE :search')
+            ->setParameter('search', '%'. $search .'%')
+            ->setFirstResult($size * ($page-1))
+            ->setMaxResults($size)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Search in movies with a specific category.
+     *
+     * @param int $category_id Category id.
+     * @param int $page Collection page to return.
+     * @param int $size Collection size to return.
+     * @param string|null $search Search with a term.
+     * @return mixed
+     */
+    public function searchByCategory(int $category_id, int $page, int $size, string $search = null): mixed
+    {
+        return $this->createQueryBuilder('m')
+            ->innerJoin('m.categories', 'c', 'WITH', 'c = :category_id')
+            ->orWhere('m.title LIKE :search')
+            ->orWhere('m.description LIKE :search')
+            ->orWhere('m.releasedAt LIKE :search')
+            ->orWhere('m.note LIKE :search')
+            ->setParameter('category_id', $category_id)
             ->setParameter('search', '%'. $search .'%')
             ->setFirstResult($size * ($page-1))
             ->setMaxResults($size)

@@ -17,29 +17,29 @@ class Movie
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(['public'])]
+    #[Groups(['public', 'withoutCategories'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 128)]
     #[Assert\NotBlank(message: 'Title cannot be empty.')]
     #[Assert\Length(max: 128, maxMessage: 'Title cannot have more than 128 characters.')]
-    #[Groups(['public'])]
+    #[Groups(['public', 'withoutCategories'])]
     private $title;
 
     #[ORM\Column(type: 'string', length: 2048)]
     #[Assert\NotBlank(message: 'Description cannot be empty.')]
     #[Assert\Length(max: 2048, maxMessage: 'Description cannot have more than 2048 characters.')]
-    #[Groups(['public'])]
+    #[Groups(['public', 'withoutCategories'])]
     private $description;
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotBlank(message: 'Released date cannot be empty.')]
-    #[Groups(['public'])]
+    #[Groups(['public', 'withoutCategories'])]
     private $releasedAt;
 
     #[ORM\Column(type: 'smallint', nullable: true)]
     #[Assert\Range(notInRangeMessage: 'Note has to be between 0 and 5.', invalidMessage: 'Wrong format, note has to be a number.', min: 0, max: 5)]
-    #[Groups(['public'])]
+    #[Groups(['public', 'withoutCategories'])]
     private $note;
 
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'movies')]

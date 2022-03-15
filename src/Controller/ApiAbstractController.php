@@ -67,7 +67,9 @@ abstract class ApiAbstractController extends AbstractController
      */
     protected function response(object|array|null $data, int $status, array $groups = null): Response
     {
-        $groups[] = 'public';
+        if (!$groups) {
+            $groups[] = 'public';
+        }
 
         $data = $this->serializer->serialize($data, $this->outputFormat, ['groups' => $groups]);
         return new Response($data, $status, ['Content-Type' => 'application/' . $this->outputFormat]);

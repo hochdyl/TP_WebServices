@@ -51,7 +51,7 @@ class CategoryRepository extends ServiceEntityRepository
      * @param int $page Collection page to return.
      * @param int $size Collection size to return.
      * @param string|null $search Search with a term.
-     * @return float|int|mixed|string
+     * @return mixed
      */
     public function search(int $page, int $size, string $search = null): mixed
     {

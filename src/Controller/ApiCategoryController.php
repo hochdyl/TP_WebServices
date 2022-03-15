@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Exception;
 use App\Entity\Category;
+use App\Repository\MovieRepository;
 use App\Repository\CategoryRepository;
 use App\Service\EntityUpdaterService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,9 +22,9 @@ class ApiCategoryController extends ApiAbstractController
     #[Route('category', name: 'api_get_categories', methods: ['GET'])]
     public function getCategories(Request $request, CategoryRepository $categoryRepository): Response
     {
-        $page   = $request->query->get('page', 1); // Page number, default : 1
-        $size   = $request->query->get('size', 10); // Page size, default : 10
-        $search = $request->query->get('search'); // Search terms, default : null
+        $page   = $request->query->get('page', 1);
+        $size   = $request->query->get('size', 10);
+        $search = $request->query->get('search');
 
         $categories = $categoryRepository->search($page, $size, $search);
 
@@ -53,7 +54,7 @@ class ApiCategoryController extends ApiAbstractController
         $em->persist($category);
         $em->flush();
 
-        return $this->response($category, 200);
+        return $this->response($category, 201);
     }
 
     #[Route('category/{category_id}', name: 'api_get_category', methods: ['GET'])]
@@ -124,5 +125,18 @@ class ApiCategoryController extends ApiAbstractController
         $em->flush();
 
         return $this->response(null, 204);
+    }
+
+    #[Route('category/{category_id}/movies', name: 'api_get_category_movies', methods: ['GET'])]
+    public function getCategoryMovies(int $category_id, Request $request, MovieRepository $movieRepository,
+                                      EntityManagerInterface $em): Response
+    {
+        $page = $request->query->get('page', 1);
+        $size = $request->query->get('size', 10);
+        $search = $request->query->get('search');
+
+        $movies = $movieRepository->searchByCategory($category_id, $page, $size, $search);
+
+        return $this->response($movies, 200, ['withoutCategories']);
     }
 }
