@@ -3,14 +3,11 @@
 namespace App\Controller;
 
 use Exception;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('api/')]
 abstract class ApiAbstractController extends AbstractController
 {
     /**
@@ -63,13 +60,18 @@ abstract class ApiAbstractController extends AbstractController
     /**
      * Return a response in the chosen format.
      *
-     * @param object|array $data The data array.
+     * @param object|array|null $data The data array.
      * @param int $status The response status.
+     * @param array|null $groups Entity groups.
      * @return Response
      */
-    protected function response(object|array $data, int $status): Response
+    protected function response(object|array|null $data, int $status, array $groups = null): Response
     {
-        $data = $this->serializer->serialize($data, $this->outputFormat);
+        if (!$groups) {
+            $groups[] = 'public';
+        }
+
+        $data = $this->serializer->serialize($data, $this->outputFormat, ['groups' => $groups]);
         return new Response($data, $status, ['Content-Type' => 'application/' . $this->outputFormat]);
     }
 
@@ -86,7 +88,14 @@ abstract class ApiAbstractController extends AbstractController
             if ($this->inputFormat === 'xml') {
                 $data = json_encode(simplexml_load_string($data));
             }
-            return json_decode($data, true);
+
+            $decode = json_decode($data, true);
+
+            if (!$decode) {
+                throw new Exception('Data is wrongly formatted in ' . $this->inputFormat . '.');
+            }
+
+            return $decode;
         } catch (Exception) {
             throw new Exception('Data is wrongly formatted in ' . $this->inputFormat . '.');
         }

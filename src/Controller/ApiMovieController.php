@@ -2,18 +2,19 @@
 
 namespace App\Controller;
 
+use App\Repository\CategoryRepository;
+use Exception;
 use App\Entity\Movie;
 use App\Repository\MovieRepository;
 use App\Service\EntityUpdaterService;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Exception\NotEncodableValueException;
-use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
+use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 
 #[Route('api/')]
 class ApiMovieController extends ApiAbstractController
@@ -21,11 +22,11 @@ class ApiMovieController extends ApiAbstractController
     #[Route('movie', name: 'api_get_movies', methods: ['GET'])]
     public function getMovies(Request $request, MovieRepository $movieRepository): Response
     {
-        $search = $request->query->get('search'); // Search terms, default : null
-        $page   = $request->query->get('page', 1); // Page number, default : 1
-        $size   = $request->query->get('size', 10); // Page size, default : 10
+        $page       = $request->query->get('page', 1);
+        $size       = $request->query->get('size', 10);
+        $search     = $request->query->get('search');
 
-        $movies = $movieRepository->search($search, $page, $size);
+        $movies = $movieRepository->search($page, $size, $search);
 
         return $this->response($movies, 200);
     }
@@ -53,20 +54,7 @@ class ApiMovieController extends ApiAbstractController
         $em->persist($movie);
         $em->flush();
 
-        return $this->response($movie, 200);
-    }
-
-    #[Route('movie', name: 'api_delete_movies', methods: ['DELETE'])]
-    public function deleteMovies(MovieRepository $movieRepository, EntityManagerInterface $em): Response
-    {
-        $movies = $movieRepository->findAll();
-
-        foreach($movies as $movie) {
-            $em->remove($movie);
-        }
-        $em->flush();
-
-        return $this->response(null, 204);
+        return $this->response($movie, 201);
     }
 
     #[Route('movie/{movie_id}', name: 'api_get_movie', methods: ['GET'])]
@@ -136,5 +124,39 @@ class ApiMovieController extends ApiAbstractController
         $em->flush();
 
         return $this->response(null, 204);
+    }
+
+    #[Route('movie/{movie_id}/category/{category_id}', name: 'api_add_movie_category', methods: ['POST'])]
+    public function addMovieCategory(int $movie_id, int $category_id, MovieRepository $movieRepository,
+                                        CategoryRepository $categoryRepository, EntityManagerInterface $em): Response
+    {
+        $movie    = $movieRepository->find($movie_id);
+        $category = $categoryRepository->find($category_id);
+
+        if(!$movie || !$category) {
+            return $this->response(['message' => 'The resource you requested could not be found.'], 404);
+        }
+
+        $movie->addCategory($category);
+        $em->flush();
+
+        return $this->response($movie, 201);
+    }
+
+    #[Route('movie/{movie_id}/category/{category_id}', name: 'api_delete_movie_category', methods: ['DELETE'])]
+    public function deleteMovieCategory(int $movie_id, int $category_id, MovieRepository $movieRepository,
+                                        CategoryRepository $categoryRepository, EntityManagerInterface $em): Response
+    {
+        $movie    = $movieRepository->find($movie_id);
+        $category = $categoryRepository->find($category_id);
+
+        if(!$movie || !$category) {
+            return $this->response(['message' => 'The resource you requested could not be found.'], 404);
+        }
+
+        $movie->removeCategory($category);
+        $em->flush();
+
+        return $this->response($movie, 200);
     }
 }
