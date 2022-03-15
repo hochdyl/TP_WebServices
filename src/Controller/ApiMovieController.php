@@ -2,23 +2,27 @@
 
 namespace App\Controller;
 
-use App\Repository\CategoryRepository;
 use Exception;
 use App\Entity\Movie;
 use App\Repository\MovieRepository;
 use App\Service\EntityUpdaterService;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Serializer\Exception\NotEncodableValueException;
-use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 
 #[Route('api/')]
 class ApiMovieController extends ApiAbstractController
 {
+    /**
+     * Api resource.
+     *
+     * @var string $ressource
+     */
+    private string $resource = Movie::class;
+
     #[Route('movie', name: 'api_get_movies', methods: ['GET'])]
     public function getMovies(Request $request, MovieRepository $movieRepository): Response
     {
@@ -32,16 +36,12 @@ class ApiMovieController extends ApiAbstractController
     }
 
     #[Route('movie', name: 'api_add_movie', methods: ['POST'])]
-    public function addMovie(Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
-                             ValidatorInterface $validator): Response
+    public function addMovie(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): Response
     {
-        // Create entity from request data.
         try {
-            $movie = $serializer->deserialize($request->getContent(), Movie::class, $this->inputFormat);
-        } catch (NotEncodableValueException) {
-            return $this->response(['message' => 'Data is wrongly formatted in ' . $this->inputFormat . '.'], 400);
-        } catch (NotNormalizableValueException $e) {
-            return $this->response(['message' => $e->getMessage()], 422);
+            $movie = $this->deserializeRequest($request, $this->resource);
+        } catch (Exception $e) {
+            return $this->response(['message' => $e->getMessage()], 400);
         }
 
         // Validate entity.
@@ -80,15 +80,10 @@ class ApiMovieController extends ApiAbstractController
             return $this->response(['message' => 'The resource you requested could not be found.'], 404);
         }
 
-        // Handle others input formats.
-        try {
-            $data = $this->inputDecode($request->getContent());
-        } catch (Exception $e) {
-            return $this->response(['message' => $e->getMessage()], 400);
-        }
+        $data = json_decode($request->getContent(), true);
 
         if (!$data) {
-            return $this->response(['message' => 'Data is wrongly formatted in ' . $this->inputFormat . '.'], 400);
+            return $this->response(['message' => 'Data is empty or wrongly formatted in json.'], 400);
         }
 
         // Update entity from request data.

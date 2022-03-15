@@ -5,18 +5,12 @@ namespace App\Controller;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 abstract class ApiAbstractController extends AbstractController
 {
-    /**
-     * Request input format.
-     *
-     * @var string
-     */
-    protected string $inputFormat;
-
     /**
      * Request output format.
      *
@@ -36,7 +30,7 @@ abstract class ApiAbstractController extends AbstractController
      *
      * @var SerializerInterface
      */
-    private SerializerInterface $serializer;
+    protected SerializerInterface $serializer;
 
     /**
      * Handle input and output in supported formats.
@@ -48,12 +42,8 @@ abstract class ApiAbstractController extends AbstractController
     {
         $request = $request->getCurrentRequest();
 
-        $inputFormat  = strtolower($request->headers->get('X-Input-Format', 'json'));
         $outputFormat = strtolower($request->headers->get('X-Output-Format', 'json'));
-
-        $this->inputFormat  = in_array($inputFormat, $this->supportedFormats)  ? $inputFormat  : 'json';
         $this->outputFormat = in_array($outputFormat, $this->supportedFormats) ? $outputFormat : 'json';
-
         $this->serializer = $serializer;
     }
 
@@ -76,28 +66,19 @@ abstract class ApiAbstractController extends AbstractController
     }
 
     /**
-     * Handle others input formats.
+     * Handle a request content.
      *
-     * @param string $data Data in a specific format
-     * @return array
      * @throws Exception
      */
-    protected function inputDecode(string $data): array
+    protected function deserializeRequest($request, string $resource)
     {
         try {
-            if ($this->inputFormat === 'xml') {
-                $data = json_encode(simplexml_load_string($data));
-            }
-
-            $decode = json_decode($data, true);
-
-            if (!$decode) {
-                throw new Exception('Data is wrongly formatted in ' . $this->inputFormat . '.');
-            }
-
-            return $decode;
-        } catch (Exception) {
-            throw new Exception('Data is wrongly formatted in ' . $this->inputFormat . '.');
+            $data = $this->serializer->deserialize($request->getContent(), $resource, 'json');
+        } catch (NotEncodableValueException $e) {
+            return throw new Exception('Data is wrongly formatted in json.');
         }
+
+//        $contentType = $request->getContentType();
+        return $data;
     }
 }

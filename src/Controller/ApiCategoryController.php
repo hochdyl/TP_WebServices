@@ -11,14 +11,18 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Serializer\Exception\NotEncodableValueException;
-use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 
 #[Route('api/')]
 class ApiCategoryController extends ApiAbstractController
 {
+    /**
+     * Api resource.
+     *
+     * @var string $ressource
+     */
+    private string $resource = Category::class;
+
     #[Route('category', name: 'api_get_categories', methods: ['GET'])]
     public function getCategories(Request $request, CategoryRepository $categoryRepository): Response
     {
@@ -32,16 +36,12 @@ class ApiCategoryController extends ApiAbstractController
     }
 
     #[Route('category', name: 'api_add_category', methods: ['POST'])]
-    public function addCategory(Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
-                             ValidatorInterface $validator): Response
+    public function addCategory(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): Response
     {
-        // Create entity from request data.
         try {
-            $category = $serializer->deserialize($request->getContent(), Category::class, $this->inputFormat);
-        } catch (NotEncodableValueException) {
-            return $this->response(['message' => 'Data is wrongly formatted in ' . $this->inputFormat . '.'], 400);
-        } catch (NotNormalizableValueException $e) {
-            return $this->response(['message' => $e->getMessage()], 422);
+            $category = $this->deserializeRequest($request, $this->resource);
+        } catch (Exception $e) {
+            return $this->response(['message' => $e->getMessage()], 400);
         }
 
         // Validate entity.
@@ -80,15 +80,10 @@ class ApiCategoryController extends ApiAbstractController
             return $this->response(['message' => 'The resource you requested could not be found.'], 404);
         }
 
-        // Handle others input formats.
-        try {
-            $data = $this->inputDecode($request->getContent());
-        } catch (Exception $e) {
-            return $this->response(['message' => $e->getMessage()], 400);
-        }
+        $data = json_decode($request->getContent(), true);
 
         if (!$data) {
-            return $this->response(['message' => 'Data is wrongly formatted in ' . $this->inputFormat . '.'], 400);
+            return $this->response(['message' => 'Data is empty or wrongly formatted in json.'], 400);
         }
 
         // Update entity from request data.
