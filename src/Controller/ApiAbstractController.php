@@ -60,12 +60,12 @@ abstract class ApiAbstractController extends AbstractController
     /**
      * Return a response in the chosen format.
      *
-     * @param object|array $data The data array.
+     * @param object|array|null $data The data array.
      * @param int $status The response status.
      * @param array|null $groups Entity groups.
      * @return Response
      */
-    protected function response(object|array $data, int $status, array $groups = null): Response
+    protected function response(object|array|null $data, int $status, array $groups = null): Response
     {
         $groups[] = 'public';
 
@@ -86,7 +86,14 @@ abstract class ApiAbstractController extends AbstractController
             if ($this->inputFormat === 'xml') {
                 $data = json_encode(simplexml_load_string($data));
             }
-            return json_decode($data, true);
+
+            $decode = json_decode($data, true);
+
+            if (!$decode) {
+                throw new Exception('Data is wrongly formatted in ' . $this->inputFormat . '.');
+            }
+
+            return $decode;
         } catch (Exception) {
             throw new Exception('Data is wrongly formatted in ' . $this->inputFormat . '.');
         }

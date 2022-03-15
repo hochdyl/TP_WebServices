@@ -56,19 +56,6 @@ class ApiMovieController extends ApiAbstractController
         return $this->response($movie, 200);
     }
 
-    #[Route('movie', name: 'api_delete_movies', methods: ['DELETE'])]
-    public function deleteMovies(MovieRepository $movieRepository, EntityManagerInterface $em): Response
-    {
-        $movies = $movieRepository->findAll();
-
-        foreach($movies as $movie) {
-            $em->remove($movie);
-        }
-        $em->flush();
-
-        return $this->response(null, 204);
-    }
-
     #[Route('movie/{movie_id}', name: 'api_get_movie', methods: ['GET'])]
     public function getMovie(int $movie_id, MovieRepository $movieRepository): Response
     {
