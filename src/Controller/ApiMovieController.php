@@ -2,18 +2,18 @@
 
 namespace App\Controller;
 
+use Exception;
 use App\Entity\Movie;
 use App\Repository\MovieRepository;
 use App\Service\EntityUpdaterService;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Exception\NotEncodableValueException;
-use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
+use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 
 #[Route('api/')]
 class ApiMovieController extends ApiAbstractController
@@ -21,9 +21,9 @@ class ApiMovieController extends ApiAbstractController
     #[Route('movie', name: 'api_get_movies', methods: ['GET'])]
     public function getMovies(Request $request, MovieRepository $movieRepository): Response
     {
-        $page   = $request->query->get('page', 1); // Page number, default : 1
-        $size   = $request->query->get('size', 10); // Page size, default : 10
-        $search = $request->query->get('search'); // Search terms, default : null
+        $page       = $request->query->get('page', 1); // Page number, default : 1
+        $size       = $request->query->get('size', 10); // Page size, default : 10
+        $search     = $request->query->get('search'); // Search terms, default : null
 
         $movies = $movieRepository->search($page, $size, $search);
 

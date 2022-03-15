@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\MovieRepository;
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 use Exception;
+use Doctrine\ORM\Mapping as ORM;
+use App\Repository\MovieRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
@@ -16,31 +17,33 @@ class Movie
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['public'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 128)]
     #[Assert\NotBlank(message: 'Title cannot be empty.')]
     #[Assert\Length(max: 128, maxMessage: 'Title cannot have more than 128 characters.')]
+    #[Groups(['public'])]
     private $title;
 
     #[ORM\Column(type: 'string', length: 2048)]
     #[Assert\NotBlank(message: 'Description cannot be empty.')]
     #[Assert\Length(max: 2048, maxMessage: 'Description cannot have more than 2048 characters.')]
+    #[Groups(['public'])]
     private $description;
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotBlank(message: 'Released date cannot be empty.')]
+    #[Groups(['public'])]
     private $releasedAt;
 
     #[ORM\Column(type: 'smallint', nullable: true)]
-    #[Assert\Range(
-        notInRangeMessage: 'Note has to be between 0 and 5.',
-        invalidMessage: 'Wrong format, note has to be a number.',
-        min: 0, max: 5
-    )]
+    #[Assert\Range(notInRangeMessage: 'Note has to be between 0 and 5.', invalidMessage: 'Wrong format, note has to be a number.', min: 0, max: 5)]
+    #[Groups(['public'])]
     private $note;
 
-    #[ORM\ManyToMany(targetEntity: Category::class)]
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'movies')]
+    #[Groups(['public'])]
     private $categories;
 
     public function __construct()
