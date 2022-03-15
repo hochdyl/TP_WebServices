@@ -46,6 +46,9 @@ class Movie
     #[Groups(['public'])]
     private $categories;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private $poster;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
@@ -127,6 +130,18 @@ class Movie
     public function removeCategory(Category $category): self
     {
         $this->categories->removeElement($category);
+
+        return $this;
+    }
+
+    public function getPoster(): ?string
+    {
+        return $this->poster;
+    }
+
+    public function setPoster(?string $poster): self
+    {
+        $this->poster = $poster;
 
         return $this;
     }
