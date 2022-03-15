@@ -48,8 +48,8 @@ abstract class ApiAbstractController extends AbstractController
     {
         $request = $request->getCurrentRequest();
 
-        $inputFormat  = strtolower($request->headers->get('X-Data-Format-Input', 'json'));
-        $outputFormat = strtolower($request->headers->get('X-Data-Format-Output', 'json'));
+        $inputFormat  = strtolower($request->headers->get('X-Input-Format', 'json'));
+        $outputFormat = strtolower($request->headers->get('X-Output-Format', 'json'));
 
         $this->inputFormat  = in_array($inputFormat, $this->supportedFormats)  ? $inputFormat  : 'json';
         $this->outputFormat = in_array($outputFormat, $this->supportedFormats) ? $outputFormat : 'json';

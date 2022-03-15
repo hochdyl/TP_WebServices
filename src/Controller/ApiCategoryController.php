@@ -128,8 +128,7 @@ class ApiCategoryController extends ApiAbstractController
     }
 
     #[Route('category/{category_id}/movies', name: 'api_get_category_movies', methods: ['GET'])]
-    public function getCategoryMovies(int $category_id, Request $request, MovieRepository $movieRepository,
-                                      EntityManagerInterface $em): Response
+    public function getCategoryMovies(int $category_id, Request $request, MovieRepository $movieRepository): Response
     {
         $page = $request->query->get('page', 1);
         $size = $request->query->get('size', 10);
